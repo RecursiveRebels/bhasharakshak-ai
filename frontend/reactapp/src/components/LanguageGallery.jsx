@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { validateLanguageScript } from '../utils/languageUtils';
+import { getNativeLanguageName } from '../utils/languageNames';
 import axios from 'axios';
-import { Search, Play, Volume2, Globe, ArrowRight, Sparkles, BookOpen, Trash2 } from 'lucide-react';
+import { Search, Globe, Sparkles, BookOpen, ArrowRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 export const LanguageGallery = () => {
+    const { t } = useTranslation();
     const [query, setQuery] = useState('');
-    const [assets, setAssets] = useState([]);
+    const [groupedAssets, setGroupedAssets] = useState({});
     const [loading, setLoading] = useState(false);
-    const [initialLoad, setInitialLoad] = useState(true);
 
     useEffect(() => {
         handleSearch();
@@ -22,42 +26,26 @@ export const LanguageGallery = () => {
 
             const res = await axios.get(url);
             const verified = res.data.filter(a => a.status === 'verified');
-            setAssets(verified);
+
+            // Group by language
+            const grouped = verified.reduce((acc, asset) => {
+                const lang = asset.languageName || t('unknown_language');
+
+                // Strict script validation
+                if (!validateLanguageScript(asset.transcript, lang)) {
+                    return acc;
+                }
+
+                if (!acc[lang]) acc[lang] = [];
+                acc[lang].push(asset);
+                return acc;
+            }, {});
+
+            setGroupedAssets(grouped);
         } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);
-            setInitialLoad(false);
-        }
-    };
-
-    const handleDelete = async (assetId) => {
-        const pin = prompt("Enter Admin PIN to confirm deletion:");
-        if (!pin) return;
-
-        try {
-            await axios.delete(`http://localhost:8080/api/v1/translate/${assetId}`, {
-                headers: { 'X-Admin-Pin': pin }
-            });
-            alert("Asset deleted.");
-            setAssets(prev => prev.filter(a => a.assetId !== assetId));
-        } catch (err) {
-            console.error("Delete failed", err);
-            if (err.response && err.response.status === 403) {
-                alert("Access Denied: Invalid Admin PIN");
-            } else {
-                alert("Failed to delete asset.");
-            }
-        }
-    };
-
-    const playTTS = async (text, id) => {
-        try {
-            // Updated to allow language passing if we had verified 'en' endpoint or target language
-            await axios.get(`http://localhost:8080/api/v1/tts?text=${encodeURIComponent(text)}&lang=en`);
-            alert("Playing Audio Preview...");
-        } catch (err) {
-            console.error(err);
         }
     };
 
@@ -72,7 +60,7 @@ export const LanguageGallery = () => {
                         <input
                             type="text"
                             className="flex-1 pl-4 pr-4 py-3 bg-transparent outline-none text-lg text-gray-700 dark:text-gray-200 placeholder-gray-400"
-                            placeholder="Discover languages (e.g. Bodo, Mizo)..."
+                            placeholder={t('search_placeholder')}
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                         />
@@ -80,99 +68,75 @@ export const LanguageGallery = () => {
                             type="submit"
                             className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-3 rounded-full font-bold hover:scale-105 transition-all shadow-lg flex items-center gap-2"
                         >
-                            <Sparkles size={18} /> Search
+                            <Sparkles size={18} /> {t('search')}
                         </button>
                     </div>
                 </form>
             </div>
 
-            {/* Grid */}
+            {/* Language Cards Grid */}
             {loading ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {[1, 2, 3, 4, 5, 6].map(i => (
-                        <div key={i} className="h-80 bg-gray-200 dark:bg-gray-800 rounded-3xl animate-pulse"></div>
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="h-64 bg-gray-200 dark:bg-gray-800 rounded-3xl animate-pulse"></div>
                     ))}
                 </div>
-            ) : assets.length === 0 ? (
+            ) : Object.keys(groupedAssets).length === 0 ? (
                 <div className="text-center py-24 glass-card border-dashed bg-white/50 dark:bg-gray-800/50">
                     <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
                         <Globe size={48} className="text-gray-300 dark:text-gray-500" />
                     </div>
-                    <h3 className="text-3xl font-bold text-gray-700 dark:text-gray-300 mb-2">No verified assets found</h3>
-                    <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">The library is empty for this search. Be the first to contribute to this language!</p>
+                    <h3 className="text-3xl font-bold text-gray-700 dark:text-gray-300 mb-2">{t('no_assets_found')}</h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">{t('no_assets_desc')}</p>
                     <a href="/contribute" className="btn-primary inline-flex items-center gap-2">
-                        Contribute Now <ArrowRight size={20} />
+                        {t('contribute_now')} <ArrowRight size={20} />
                     </a>
                 </div>
             ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
-                    {assets.map((asset) => (
-                        <div key={asset.assetId} className="group relative bg-white dark:bg-gray-800 rounded-[2rem] overflow-hidden hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-2xl dark:shadow-black/40 border border-gray-100 dark:border-gray-700">
+                    {Object.entries(groupedAssets).map(([language, assets]) => {
+                        const nativeName = getNativeLanguageName(language);
+                        const displayName = nativeName === language ? language : nativeName;
 
-                            {/* Card Header Illustration */}
-                            <div className="h-32 bg-gradient-to-br from-orange-100 to-pink-100 dark:from-gray-700 dark:to-gray-800 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-6 opacity-10 transform rotate-12 group-hover:scale-110 transition-transform duration-700">
-                                    <Globe size={120} className="text-orange-500 dark:text-gray-400" />
-                                </div>
-                                <div className="absolute bottom-4 left-6">
-                                    <span className="inline-block bg-white dark:bg-gray-900 text-orange-600 dark:text-orange-400 text-xs font-black px-3 py-1 rounded-lg uppercase tracking-widest shadow-sm mb-1">
-                                        {asset.languageName}
-                                    </span>
-                                </div>
-                            </div>
+                        return (
+                            <Link
+                                key={language}
+                                to={`/learn/${language}`}
+                                className="group relative bg-white dark:bg-gray-800 rounded-[2.5rem] overflow-hidden hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-2xl dark:shadow-black/40 border border-gray-100 dark:border-gray-700 flex flex-col h-full"
+                            >
+                                {/* Decorative Background */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 opacity-50"></div>
+                                <div className="absolute -right-12 -top-12 w-48 h-48 bg-gradient-to-br from-orange-100 to-pink-100 dark:from-orange-900/20 dark:to-pink-900/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
 
-                            {/* Content */}
-                            <div className="p-6 pt-4">
-                                <div className="flex justify-between items-start mb-6">
-                                    <div>
-                                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1 group-hover:text-orange-500 transition-colors">{asset.dialect || "Standard"}</h3>
-                                        <p className="text-xs text-gray-400 font-medium">Verified Entry</p>
-                                    </div>
-                                    {asset.audioUrl && (
-                                        <button className="w-12 h-12 rounded-full bg-orange-500 text-white shadow-lg shadow-orange-500/30 flex items-center justify-center hover:bg-orange-600 hover:scale-110 transition-all">
-                                            <Play size={20} fill="currentColor" className="ml-1" />
-                                        </button>
-                                    )}
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-700">
-                                        <div className="flex items-center gap-2 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                            <BookOpen size={12} /> Native Script / Transcript
+                                {/* Content */}
+                                <div className="relative p-8 flex flex-col h-full z-10">
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center text-white shadow-lg transform group-hover:rotate-12 transition-transform duration-500">
+                                            <span className="text-2xl font-bold">{displayName.charAt(0)}</span>
                                         </div>
-                                        <p className="text-gray-800 dark:text-gray-200 font-medium leading-relaxed font-serif italic text-lg">"{asset.transcript}"</p>
+                                        <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
+                                            <ArrowRight size={20} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
+                                        </div>
                                     </div>
 
-                                    {asset.englishTranslation && (
-                                        <div className="pl-2 border-l-2 border-orange-200 dark:border-gray-600">
-                                            <div className="flex justify-between items-center mb-1">
-                                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Translation</h4>
-                                                <button onClick={() => playTTS(asset.englishTranslation, asset.assetId)} className="text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 transition-colors flex items-center gap-1 text-xs font-bold">
-                                                    <Volume2 size={14} /> Listen
-                                                </button>
-                                            </div>
-                                            <p className="text-gray-600 dark:text-gray-400">{asset.englishTranslation}</p>
+                                    <div className="mt-auto">
+                                        <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-orange-600 group-hover:to-pink-600 transition-all duration-300">
+                                            {displayName}
+                                        </h3>
+                                        {nativeName !== language && (
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 font-medium">
+                                                {language}
+                                            </p>
+                                        )}
+                                        <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400 font-medium">
+                                            <BookOpen size={18} />
+                                            <span>{assets.length} {assets.length === 1 ? t('entry') : t('entries')}</span>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
-                            </div>
-
-                            {/* Footer */}
-                            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center text-xs text-gray-400 font-medium">
-                                <div className="flex items-center gap-4">
-                                    <span>ID: {asset.assetId.substring(0, 6)}</span>
-                                    <span>{new Date(asset.createdAt || Date.now()).toLocaleDateString()}</span>
-                                </div>
-                                <button
-                                    onClick={() => handleDelete(asset.assetId)}
-                                    className="text-gray-400 hover:text-red-500 transition-colors p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-                                    title="Delete Asset (Admin)"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+                            </Link>
+                        );
+                    })}
                 </div>
             )}
         </div>

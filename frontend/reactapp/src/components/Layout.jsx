@@ -3,14 +3,17 @@ import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useSidebar } from '../context/SidebarContext';
 
 export const Layout = ({ children }) => {
     const location = useLocation();
+    const { isCollapsed } = useSidebar();
 
     return (
         <div className="min-h-screen flex flex-col font-sans text-gray-900 bg-transparent relative">
             <Navbar />
-            <main className="flex-grow">
+            <main className={`flex-grow transition-all duration-300 ${isCollapsed ? 'lg:pl-20' : 'lg:pl-72'
+                }`}>
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={location.pathname}

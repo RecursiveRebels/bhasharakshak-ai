@@ -26,7 +26,17 @@ public class LanguageAsset {
     private boolean consentGiven;
     private LocalDateTime consentTimestamp;
 
+    // Location tracking for map visualization
+    private String region; // State/Region name
+    private String city; // City name
+    private Double latitude; // Optional GPS coordinates
+    private Double longitude; // Optional GPS coordinates
+
     private String status; // "pending", "verified"
+
+    // Private collections support
+    private boolean isPrivate; // true = private collection, false = public/consented
+    private String userId; // Browser-generated unique user ID for private collections
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

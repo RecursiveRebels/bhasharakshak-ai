@@ -1,144 +1,238 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Mic, Globe, BookOpen, Home, Menu, X, Sparkles, Sun, Moon } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Home, Mic, Globe, BookOpen, User, Shield, Sun, Moon, PanelLeft, PanelLeftClose, ChevronDown, HelpCircle, Languages, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
+import { useTutorial } from '../context/TutorialContext';
 import { getBadges } from '../services/GamificationService';
+import { useTranslation } from 'react-i18next';
+import { useSidebar } from '../context/SidebarContext';
+
+const LANGUAGES = [
+    { code: 'en', label: 'English', native: 'English' },
+    { code: 'hi', label: 'Hindi', native: 'हिन्दी' },
+    { code: 'ta', label: 'Tamil', native: 'தமிழ்' },
+    { code: 'te', label: 'Telugu', native: 'తెలుగు' },
+    { code: 'kn', label: 'Kannada', native: 'ಕನ್ನಡ' },
+    { code: 'ml', label: 'Malayalam', native: 'മലയാളം' },
+    { code: 'bn', label: 'Bengali', native: 'বাংলা' },
+    { code: 'gu', label: 'Gujarati', native: 'ગુજરાતી' },
+    { code: 'mr', label: 'Marathi', native: 'मराठी' }
+];
 
 export const Navbar = () => {
+    const { t, i18n } = useTranslation();
+    const { startTutorial } = useTutorial();
     const location = useLocation();
-    const navigate = useNavigate();
-    const [scrolled, setScrolled] = useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+    const { isCollapsed, setIsCollapsed } = useSidebar(); // Use context instead of local state
+    const [langMenuOpen, setLangMenuOpen] = useState(false);
     const { theme, toggleTheme } = useTheme();
     const badges = getBadges();
     const topBadge = badges.length > 0 ? badges[badges.length - 1] : null;
 
-    useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
     const isActive = (path) => location.pathname === path;
 
+    const handleLanguageChange = (langCode) => {
+        i18n.changeLanguage(langCode);
+        localStorage.setItem('i18nextLng', langCode);
+        setLangMenuOpen(false);
+    };
+
+    const currentLang = LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0];
+
     const navItems = [
-        { path: '/', label: 'Home', icon: Home },
-        { path: '/contribute', label: 'Contribute', icon: Mic },
-        { path: '/translate', label: 'Translate', icon: Globe },
-        { path: '/learn', label: 'Learn', icon: BookOpen },
+        { path: '/', label: t('home'), icon: Home },
+        { path: '/contribute', label: t('contribute'), icon: Mic },
+        { path: '/translate', label: t('translate'), icon: Globe },
+        { path: '/learn', label: t('learn'), icon: BookOpen },
+        { path: '/my-collections', label: t('my_collections') || 'My Collections', icon: User },
     ];
 
     return (
-        <motion.nav
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${scrolled ? 'glass h-16 md:h-20 my-2 mx-4 md:my-4 md:mx-6 rounded-2xl shadow-2xl dark:shadow-black/50' : 'h-24 bg-transparent'
-                }`}
-        >
-            <div className="container mx-auto px-4 md:px-6 h-full flex items-center justify-between">
-                <Link to="/" className="flex items-center space-x-3 group">
-                    <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl flex items-center justify-center text-white shadow-lg transform group-hover:rotate-12 transition-transform duration-300">
-                        <Sparkles size={20} fill="currentColor" />
-                    </div>
-                    <div>
-                        <span className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 block leading-none">
-                            BhashaRakshak
-                        </span>
-                        <span className="text-[10px] md:text-xs font-semibold text-orange-500 tracking-widest uppercase">
-                            AI for All
+        <>
+            {/* Top Right Actions */}
+            <div className={`fixed top-6 right-6 z-50 flex items-center gap-3 transition-all duration-300 ${isCollapsed ? 'lg:right-6' : 'lg:right-6'
+                }`}>
+                {/* Rank Badge */}
+                {topBadge && (
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-800 shadow-lg">
+                        <span className="text-xl">{topBadge.icon}</span>
+                        <span className="hidden sm:inline text-xs font-bold text-amber-900 dark:text-amber-300">
+                            {topBadge.name}
                         </span>
                     </div>
-                </Link>
+                )}
 
-                {/* Desktop Menu */}
-                <div className="hidden md:flex items-center space-x-1">
-                    {navItems.map(({ path, label, icon: Icon }) => (
-                        <Link
-                            key={path}
-                            to={path}
-                            className={`relative px-6 py-2.5 rounded-xl transition-all duration-300 flex items-center gap-2 group ${isActive(path)
-                                ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg'
-                                : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/10 hover:text-orange-600'
-                                }`}
-                        >
-                            <Icon size={18} className={`transition-transform duration-300 ${!isActive(path) && 'group-hover:scale-110'}`} />
-                            <span className="font-medium">{label}</span>
-                            {isActive(path) && (
-                                <motion.div
-                                    layoutId="navbar-indicator"
-                                    className="absolute inset-0 rounded-xl bg-gray-900 dark:bg-white -z-10"
-                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                />
-                            )}
-                        </Link>
-                    ))}
-
-                    <div className="h-6 w-px bg-gray-300 dark:bg-gray-700 mx-2" />
-
-                    <button
-                        onClick={toggleTheme}
-                        className="p-3 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-yellow-400 hover:scale-110 transition-transform"
-                    >
-                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                    </button>
-
-                    {topBadge && (
-                        <div className="ml-3 hidden md:flex items-center gap-2 px-3 py-1.5 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded-full border border-yellow-200 dark:border-yellow-700/50" title={topBadge.name}>
-                            <span className="text-lg">{topBadge.icon}</span>
-                            <span className="text-xs font-bold uppercase tracking-wide">{topBadge.name}</span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Mobile Toggle */}
+                {/* Theme Toggle */}
                 <button
-                    className="md:hidden w-10 h-10 flex items-center justify-center bg-white/50 dark:bg-black/50 rounded-xl text-gray-800 dark:text-white active:scale-95 transition-all"
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    onClick={toggleTheme}
+                    className="p-3 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all text-gray-600 dark:text-gray-400"
                 >
-                    {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                    {theme === 'dark' ? <Sun size={18} strokeWidth={2.5} /> : <Moon size={18} strokeWidth={2.5} />}
                 </button>
             </div>
 
-            {/* Mobile Menu */}
-            <AnimatePresence>
-                {mobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0, y: -20 }}
-                        animate={{ opacity: 1, height: 'auto', y: 0 }}
-                        exit={{ opacity: 0, height: 0, y: -20 }}
-                        className="md:hidden absolute top-full left-0 right-0 mt-2 mx-4 glass rounded-3xl overflow-hidden shadow-2xl border border-white/60 dark:border-white/10 dark:bg-gray-900/90"
-                    >
-                        <div className="flex flex-col p-4 space-y-2">
-                            <div className="flex justify-end p-2 gap-2">
-                                <button
-                                    onClick={toggleTheme}
-                                    className="p-2 rounded-lg bg-gray-100 dark:bg-white/10 flex items-center gap-2 text-sm font-bold dark:text-white"
-                                >
-                                    {theme === 'dark' ? <><Sun size={16} /> Light Mode</> : <><Moon size={16} /> Dark Mode</>}
-                                </button>
-                            </div>
+            {/* Mobile Menu Button */}
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="lg:hidden fixed top-6 left-6 z-50 p-3 rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700"
+            >
+                {isOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
 
-                            {navItems.map(({ path, label, icon: Icon }) => (
-                                <Link
-                                    key={path}
-                                    to={path}
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className={`flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all ${isActive(path)
-                                        ? 'bg-orange-50 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 font-bold'
-                                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'
-                                        }`}
-                                >
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isActive(path) ? 'bg-orange-100 dark:bg-orange-500/20' : 'bg-gray-100 dark:bg-white/10'}`}>
-                                        <Icon size={20} />
-                                    </div>
-                                    <span className="text-lg">{label}</span>
-                                </Link>
-                            ))}
-                        </div>
-                    </motion.div>
+            {/* Desktop Collapse Button */}
+            <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className={`hidden lg:block fixed top-6 z-50 p-3 rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 ${isCollapsed ? 'left-6' : 'left-[264px]'
+                    }`}
+            >
+                {isCollapsed ? <PanelLeft size={22} /> : <PanelLeftClose size={22} />}
+            </button>
+
+            {/* Overlay for mobile */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsOpen(false)}
+                        className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+                    />
                 )}
             </AnimatePresence>
-        </motion.nav>
+
+            {/* Side Navigation */}
+            <aside
+                className={`fixed left-0 top-0 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-40 flex flex-col transition-all duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+                    } ${isCollapsed ? 'lg:w-20' : 'w-72'
+                    }`}
+            >
+                {/* Logo Section */}
+                <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+                    <Link to="/" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow flex-shrink-0">
+                            <Shield className="w-7 h-7 text-white" strokeWidth={2.5} />
+                        </div>
+                        {!isCollapsed && (
+                            <div className="overflow-hidden">
+                                <h1 className="text-lg font-bold text-gray-900 dark:text-white whitespace-nowrap">
+                                    BhashaRakshak
+                                </h1>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap">
+                                    AI for All
+                                </p>
+                            </div>
+                        )}
+                    </Link>
+                </div>
+
+                {/* Navigation Items */}
+                <nav className="flex-1 p-4 overflow-y-auto">
+                    <div className="space-y-1">
+                        {navItems.map(({ path, label, icon: Icon }) => (
+                            <Link
+                                key={path}
+                                to={path}
+                                onClick={() => setIsOpen(false)}
+                                className="relative group block"
+                                title={isCollapsed ? label : ''}
+                            >
+                                {isActive(path) && (
+                                    <motion.div
+                                        layoutId="sidebar-active"
+                                        className="absolute inset-0 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl"
+                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                    />
+                                )}
+                                <div className={`relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive(path)
+                                    ? 'text-indigo-600 dark:text-indigo-400'
+                                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
+                                    }`}>
+                                    <Icon size={20} strokeWidth={2.5} className="flex-shrink-0" />
+                                    {!isCollapsed && (
+                                        <>
+                                            <span className="font-semibold text-sm flex-1">{label}</span>
+                                            {isActive(path) && (
+                                                <ChevronRight size={16} className="text-indigo-600 dark:text-indigo-400" />
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </nav>
+
+                {/* Bottom Actions */}
+                <div className="p-4 border-t border-gray-200 dark:border-gray-800 space-y-2">
+                    {/* Help */}
+                    <button
+                        onClick={startTutorial}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                        title={isCollapsed ? t('start_tutorial') : ''}
+                    >
+                        <HelpCircle size={20} strokeWidth={2.5} className="flex-shrink-0" />
+                        {!isCollapsed && <span className="font-semibold text-sm">{t('start_tutorial')}</span>}
+                    </button>
+
+                    {/* Language Selector */}
+                    {!isCollapsed && (
+                        <div className="relative">
+                            <button
+                                onClick={() => setLangMenuOpen(!langMenuOpen)}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                            >
+                                <Languages size={20} strokeWidth={2.5} />
+                                <span className="font-semibold text-sm flex-1 text-left">
+                                    {currentLang.native}
+                                </span>
+                                <span className="text-xs font-bold uppercase opacity-60">
+                                    {currentLang.code}
+                                </span>
+                            </button>
+
+                            <AnimatePresence>
+                                {langMenuOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+                                    >
+                                        <div className="p-2 max-h-80 overflow-y-auto">
+                                            {LANGUAGES.map((lang) => (
+                                                <button
+                                                    key={lang.code}
+                                                    onClick={() => handleLanguageChange(lang.code)}
+                                                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${currentLang.code === lang.code
+                                                        ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400'
+                                                        : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                                        }`}
+                                                >
+                                                    <p className="font-semibold text-sm">{lang.native}</p>
+                                                    <p className="text-xs opacity-60">{lang.label}</p>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    )}
+
+                    {/* Collapsed Language Icon */}
+                    {isCollapsed && (
+                        <button
+                            className="w-full flex items-center justify-center px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                            title={currentLang.native}
+                        >
+                            <Languages size={20} strokeWidth={2.5} />
+                        </button>
+                    )}
+                </div>
+            </aside>
+        </>
     );
 };

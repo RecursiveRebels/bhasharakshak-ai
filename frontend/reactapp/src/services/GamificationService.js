@@ -1,8 +1,8 @@
 export const BADGES = [
-    { id: 'novice', name: 'Novice Scribe', min: 1, icon: '🌟', desc: 'First Contribution' },
-    { id: 'scholar', name: 'Scholar', min: 5, icon: '📜', desc: '5 Contributions' },
-    { id: 'master', name: 'Master Linguist', min: 20, icon: '👑', desc: '20+ Contributions' },
-    { id: 'guardian', name: 'Guardian', min: 50, icon: '🛡️', desc: 'True Protector' }
+    { id: 'novice', name: 'badge_novice_name', min: 1, icon: '🌟', desc: 'badge_novice_desc' },
+    { id: 'scholar', name: 'badge_scholar_name', min: 5, icon: '📜', desc: 'badge_scholar_desc' },
+    { id: 'master', name: 'badge_master_name', min: 20, icon: '👑', desc: 'badge_master_desc' },
+    { id: 'guardian', name: 'badge_guardian_name', min: 50, icon: '🛡️', desc: 'badge_guardian_desc' }
 ];
 
 export const getContributionCount = () => {

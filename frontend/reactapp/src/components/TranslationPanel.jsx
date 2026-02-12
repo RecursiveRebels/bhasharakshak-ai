@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import { Type, Check, RefreshCw, Wand2, MessageSquare, Trash2, ArrowRightLeft, Sparkles } from 'lucide-react';
 
 export const TranslationPanel = () => {
     const [assets, setAssets] = useState([]);
+    const { t } = useTranslation();
     const [selectedAsset, setSelectedAsset] = useState(null);
     const [translation, setTranslation] = useState('');
     const [loading, setLoading] = useState(true);
@@ -138,7 +140,7 @@ export const TranslationPanel = () => {
     if (loading) return (
         <div className="flex flex-col items-center justify-center p-20 text-gray-400">
             <RefreshCw className="animate-spin mb-4 text-orange-500" size={32} />
-            <p className="font-medium text-orange-800">Syncing with community...</p>
+            <p className="font-medium text-orange-800">{t('syncing')}</p>
         </div>
     );
 
@@ -149,8 +151,8 @@ export const TranslationPanel = () => {
             <div className="lg:col-span-4 bg-white/60 dark:bg-gray-800/60 border-r border-white/50 dark:border-white/10 flex flex-col backdrop-blur-md">
                 <div className="p-6 border-b border-white/50 dark:border-white/10 bg-white/40 dark:bg-gray-800/40 flex justify-between items-center">
                     <div>
-                        <h3 className="font-bold text-gray-900 dark:text-white text-lg">Pending Review</h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">{assets.length} ITEMS QUEUED</p>
+                        <h3 className="font-bold text-gray-900 dark:text-white text-lg">{t('pending_review')}</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">{assets.length} {t('items_queued')}</p>
                     </div>
                     <button onClick={fetchPendingAssets} className="text-gray-400 hover:text-orange-500 transition-colors p-2 hover:bg-orange-50 dark:hover:bg-orange-500/20 rounded-full"><RefreshCw size={20} /></button>
                 </div>
@@ -160,8 +162,8 @@ export const TranslationPanel = () => {
                             <div className="w-16 h-16 bg-green-50 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Check size={24} />
                             </div>
-                            <p className="text-gray-600 dark:text-gray-300 font-medium">All caught up!</p>
-                            <p className="text-sm text-gray-400">No pending translations.</p>
+                            <p className="text-gray-600 dark:text-gray-300 font-medium">{t('all_caught_up')}</p>
+                            <p className="text-sm text-gray-400">{t('no_pending_translations')}</p>
                         </div>
                     )}
                     {assets.map(asset => (
@@ -222,7 +224,7 @@ export const TranslationPanel = () => {
                             {/* Source Card */}
                             <div className="bg-white/60 dark:bg-gray-800/60 p-6 rounded-3xl border border-white/60 dark:border-white/10 shadow-sm flex flex-col">
                                 <label className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
-                                    <MessageSquare size={14} /> Original Transcript (Source)
+                                    <MessageSquare size={14} /> {t('original_transcript')}
                                 </label>
                                 <div className="flex-1 text-2xl md:text-3xl leading-relaxed text-gray-800 dark:text-gray-200 font-light overflow-y-auto custom-scrollbar">
                                     {selectedAsset.transcript}
@@ -234,7 +236,7 @@ export const TranslationPanel = () => {
                                 <div className="flex justify-between items-center mb-4">
                                     <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 p-1 rounded-xl">
                                         <div className="px-3 py-1.5 rounded-lg bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 text-xs font-bold uppercase flex items-center gap-2">
-                                            Auto-Detect <ArrowRightLeft size={12} />
+                                            {t('auto_detect')} <ArrowRightLeft size={12} />
                                         </div>
                                         <select
                                             value={targetLang}
@@ -263,18 +265,18 @@ export const TranslationPanel = () => {
                                                 : 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-500/20'}`}
                                         >
                                             {isPlaying ? <Sparkles size={12} /> : <MessageSquare size={12} />}
-                                            {isPlaying ? 'Speaking...' : 'Listen'}
+                                            {isPlaying ? t('speaking') : t('listen')}
                                         </button>
                                     </div>
                                 </div>
                                 <textarea
                                     className="flex-1 w-full text-2xl md:text-3xl leading-relaxed text-gray-800 dark:text-white focus:outline-none resize-none bg-transparent placeholder-gray-300 dark:placeholder-gray-600"
-                                    placeholder="Translation will appear here..."
+                                    placeholder={t('translation_will_appear')}
                                     value={translation}
                                     onChange={(e) => setTranslation(e.target.value)}
                                 />
                                 <div className="absolute bottom-4 right-6 text-xs text-gray-300 dark:text-gray-600 font-medium">
-                                    AI Generated • Verify Accuracy
+                                    {t('ai_generated_verify')}
                                 </div>
                             </div>
                         </div>
@@ -285,13 +287,13 @@ export const TranslationPanel = () => {
                                 onClick={handleDelete}
                                 className="px-6 py-4 text-red-500 font-bold hover:bg-red-50 rounded-2xl transition-colors flex items-center gap-2 mr-auto"
                             >
-                                <Trash2 size={20} /> <span className="hidden sm:inline">Delete Asset</span>
+                                <Trash2 size={20} /> <span className="hidden sm:inline">{t('delete_asset')}</span>
                             </button>
                             <button
                                 onClick={() => setSelectedAsset(null)}
                                 className="px-8 py-4 text-gray-500 font-bold hover:bg-gray-100 rounded-2xl transition-colors"
                             >
-                                Skip
+                                {t('skip')}
                             </button>
                             <button
                                 onClick={handleSubmit}
@@ -302,7 +304,7 @@ export const TranslationPanel = () => {
                                         : 'bg-gray-300 cursor-not-allowed shadow-none'}
                 `}
                             >
-                                <Check size={20} /> Verify & Save
+                                <Check size={20} /> {t('verify_save')}
                             </button>
                         </div>
                     </>
@@ -311,8 +313,8 @@ export const TranslationPanel = () => {
                         <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center mb-6 shadow-xl shadow-orange-100 animate-float">
                             <Type size={64} className="text-orange-200" />
                         </div>
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Ready to Verify?</h2>
-                        <p className="text-lg text-gray-500 max-w-md">Select an item from the sidebar to review translations, listen to audio, and help build the database.</p>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('ready_to_verify')}</h2>
+                        <p className="text-lg text-gray-500 max-w-md">{t('ready_to_verify_desc')}</p>
                     </div>
                 )}
             </div>

@@ -5,21 +5,40 @@ import Home from './pages/Home';
 import { Contribute } from './pages/Contribute';
 import { Translate } from './pages/Translate';
 import { Learn } from './pages/Learn';
+import { MyCollections } from './pages/MyCollections';
 import { ThemeProvider } from './context/ThemeContext';
+import { SidebarProvider } from './context/SidebarContext';
+
+
+import { LanguageSelector } from './pages/LanguageSelector';
+import { LanguageAssets } from './pages/LanguageAssets';
+import { TutorialProvider } from './context/TutorialContext';
 
 function App() {
+  const [isLanguageSelected, setIsLanguageSelected] = React.useState(!!localStorage.getItem('hasSeenLanguageSelector'));
+
+  if (!isLanguageSelected) {
+    return <LanguageSelector onComplete={() => setIsLanguageSelected(true)} />;
+  }
+
   return (
     <ThemeProvider>
-      <Router>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/contribute" element={<Contribute />} />
-            <Route path="/translate" element={<Translate />} />
-            <Route path="/learn" element={<Learn />} />
-          </Routes>
-        </Layout>
-      </Router>
+      <SidebarProvider>
+        <Router>
+          <TutorialProvider>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/contribute" element={<Contribute />} />
+                <Route path="/translate" element={<Translate />} />
+                <Route path="/learn" element={<Learn />} />
+                <Route path="/learn/:language" element={<LanguageAssets />} />
+                <Route path="/my-collections" element={<MyCollections />} />
+              </Routes>
+            </Layout>
+          </TutorialProvider>
+        </Router>
+      </SidebarProvider>
     </ThemeProvider>
   );
 }

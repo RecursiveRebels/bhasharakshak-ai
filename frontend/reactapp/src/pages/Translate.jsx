@@ -2,8 +2,10 @@ import React from 'react';
 import { TranslationPanel } from '../components/TranslationPanel';
 import { motion } from 'framer-motion';
 import { Sparkles, Globe2, MessageSquare } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const Translate = () => {
+    const { t } = useTranslation();
     return (
         <div className="pt-28 pb-12 px-4 container mx-auto min-h-screen flex flex-col relative overflow-hidden">
 
@@ -17,13 +19,13 @@ export const Translate = () => {
             >
                 <div>
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider mb-4 border border-indigo-100 dark:border-indigo-800">
-                        <Globe2 size={14} /> Collaborative Workspace
+                        <Globe2 size={14} /> {t('collaborative_workspace')}
                     </div>
                     <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
-                        Translate & <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500">Verify</span>
+                        {t('translate_verify')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-500">{t('verify')}</span>
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-400 mt-4 max-w-2xl font-light">
-                        Leverage the power of the community to bridge language gaps. Review contributions, correct machine errors, and help our AI learn nuances.
+                        {t('translate_desc')}
                     </p>
                 </div>
 
@@ -37,7 +39,7 @@ export const Translate = () => {
                             +2k
                         </div>
                     </div>
-                    <p className="text-right text-xs text-gray-400 font-bold mt-2 uppercase tracking-wide">Active Contributors</p>
+                    <p className="text-right text-xs text-gray-400 font-bold mt-2 uppercase tracking-wide">{t('active_contributors')}</p>
                 </div>
             </motion.div>
 
@@ -46,6 +48,7 @@ export const Translate = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
                 className="flex-1 relative z-10"
+                id="translation-panel"
             >
                 <TranslationPanel />
             </motion.div>

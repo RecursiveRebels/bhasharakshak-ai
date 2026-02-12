@@ -4,6 +4,7 @@ import com.bhasharakshak.model.LanguageAsset;
 import com.bhasharakshak.repository.AssetRepository;
 import com.bhasharakshak.service.AIService;
 import com.bhasharakshak.service.StorageService;
+// import com.bhasharakshak.service.ProfanityFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ public class FileUploadController {
     private final StorageService storageService;
     private final AIService aiService;
     private final AssetRepository assetRepository;
+    // private final ProfanityFilter profanityFilter;
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadAudio(
@@ -30,11 +32,32 @@ public class FileUploadController {
             @RequestParam("language") String language,
             @RequestParam("dialect") String dialect,
             @RequestParam(value = "targetLanguage", defaultValue = "English") String targetLanguage,
-            @RequestParam("consent") boolean consent) {
+            @RequestParam(value = "region", required = false) String region,
+            @RequestParam(value = "city", required = false) String city,
+            @RequestParam("consent") boolean consent,
+            @RequestParam(value = "isPrivate", defaultValue = "false") boolean isPrivate,
+            @RequestParam(value = "userId", required = false) String userId) {
         try {
-            if (!consent) {
-                return ResponseEntity.badRequest().body("Consent is mandatory.");
+            // Validate: if private, userId is required
+            if (isPrivate && (userId == null || userId.isEmpty())) {
+                return ResponseEntity.badRequest().body("User ID is required for private collections.");
             }
+
+            // Validate: if not private (public), consent is mandatory
+            if (!isPrivate && !consent) {
+                return ResponseEntity.badRequest().body("Consent is mandatory for public contributions.");
+            }
+
+            // TODO: Re-enable profanity filter after backend restart
+            // Validate: Check for profanity in language name and dialect
+            // if (profanityFilter.containsProfanity(language)) {
+            // return ResponseEntity.badRequest().body("Language name contains inappropriate
+            // content.");
+            // }
+            // if (profanityFilter.containsProfanity(dialect)) {
+            // return ResponseEntity.badRequest().body("Dialect contains inappropriate
+            // content.");
+            // }
 
             // 1. Store File (Returns GridFS ID)
             String fileId = storageService.storeFile(file);
@@ -47,6 +70,13 @@ public class FileUploadController {
             String transcript;
             try {
                 transcript = aiService.transcribeAudio(file, language);
+
+                // TODO: Re-enable profanity filter after backend restart
+                // Validate transcript for profanity
+                // if (profanityFilter.containsProfanity(transcript)) {
+                // return ResponseEntity.badRequest().body("Audio transcript contains
+                // inappropriate content. Please re-record.");
+                // }
             } catch (Exception ex) {
                 System.err.println("AI Service unavailable: " + ex.getMessage());
                 transcript = "Transcription unavailable (AI Service down)";
@@ -63,7 +93,15 @@ public class FileUploadController {
             asset.setTranscript(transcript);
             asset.setConsentGiven(consent);
             asset.setConsentTimestamp(LocalDateTime.now());
-            asset.setStatus("pending");
+            asset.setRegion(region);
+            asset.setCity(city);
+
+            // Privacy settings
+            asset.setPrivate(isPrivate);
+            asset.setUserId(isPrivate ? userId : null);
+
+            // Status: private assets don't need verification
+            asset.setStatus(isPrivate ? "private" : "pending");
             asset.setCreatedAt(LocalDateTime.now());
             asset.setUpdatedAt(LocalDateTime.now());
 
