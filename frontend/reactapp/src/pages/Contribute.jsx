@@ -5,10 +5,16 @@ import { motion } from 'framer-motion';
 import { Mic, Heart, Users, Sparkles } from 'lucide-react';
 import { getContributionCount, getNextBadge } from '../services/GamificationService';
 
+import { VisualHeritage } from '../components/VisualHeritage';
+import { Image as ImageIcon } from 'lucide-react';
+import { useState } from 'react';
+
 export const Contribute = () => {
     const { t } = useTranslation();
     const contributionCount = getContributionCount();
     const nextBadge = getNextBadge();
+    const [activeTab, setActiveTab] = useState('audio'); // 'audio' | 'visual'
+
     return (
         <div className="pt-28 pb-12 px-4 container mx-auto min-h-screen relative">
 
@@ -19,7 +25,7 @@ export const Contribute = () => {
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-16 max-w-4xl mx-auto"
+                className="text-center mb-10 max-w-4xl mx-auto"
             >
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider mb-6 border border-red-100 dark:border-red-800 shadow-sm animate-pulse-glow">
                     <Heart size={14} fill="currentColor" /> {t('community_powered')}
@@ -43,6 +49,39 @@ export const Contribute = () => {
                     {t('contribute_desc')}
                 </p>
 
+                {/* Contribution Type Toggle */}
+                <div className="flex justify-center mt-8 mb-4">
+                    <div className="bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl inline-flex relative">
+                        {/* Sliding Background */}
+                        <motion.div
+                            className="absolute top-1.5 bottom-1.5 rounded-xl bg-white dark:bg-gray-700 shadow-sm"
+                            initial={false}
+                            animate={{
+                                x: activeTab === 'audio' ? 0 : '100%',
+                                width: '50%'
+                            }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        />
+
+                        <button
+                            onClick={() => setActiveTab('audio')}
+                            className={`relative px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors z-10 ${activeTab === 'audio' ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
+                                }`}
+                        >
+                            <Mic size={18} />
+                            {t('voice_contribution') || 'Voice'}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('visual')}
+                            className={`relative px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors z-10 ${activeTab === 'visual' ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
+                                }`}
+                        >
+                            <ImageIcon size={18} />
+                            {t('visual_heritage') || 'Visual Heritage'}
+                        </button>
+                    </div>
+                </div>
+
                 {/* Stats Row */}
                 <div className="flex justify-center gap-8 mt-10">
                     <div className="text-center">
@@ -62,18 +101,19 @@ export const Contribute = () => {
                 </div>
             </motion.div>
 
-            {/* Recorder Section */}
+            {/* Recorder / Upload Section */}
             <motion.div
-                initial={{ opacity: 0, y: 40 }}
+                key={activeTab}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ duration: 0.3 }}
                 className="relative z-10"
             >
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-pink-600 rounded-[3rem] blur-2xl opacity-20 dark:opacity-10 transform translate-y-4"></div>
-                <div className="glass-card p-1 rounded-[2.5rem] overflow-hidden relative shadow-2xl dark:shadow-black/50" id="contribute-recorder">
+                <div className="glass-card p-1 rounded-[2.5rem] overflow-hidden relative shadow-2xl dark:shadow-black/50 max-w-5xl mx-auto" id="contribute-content">
                     <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 via-red-500 to-pink-500" />
-                    <div className="p-8 md:p-12 dark:bg-gray-900/80">
-                        <AudioRecorder />
+                    <div className="p-8 md:p-12 dark:bg-gray-900/80 min-h-[400px]">
+                        {activeTab === 'audio' ? <AudioRecorder /> : <VisualHeritage />}
                     </div>
                 </div>
             </motion.div>

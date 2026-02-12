@@ -93,4 +93,31 @@ public class AIService {
                 }
                 return (String) response.get("audio_data");
         }
+
+        public String describeImage(MultipartFile file) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+                MultipartBodyBuilder builder = new MultipartBodyBuilder();
+                builder.part("file", file.getResource());
+
+                HttpEntity<MultiValueMap<String, HttpEntity<?>>> requestEntity = new HttpEntity<>(builder.build(),
+                                headers);
+
+                try {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> response = restTemplate.postForObject(
+                                        AI_SERVICE_URL + "/describe-image",
+                                        requestEntity,
+                                        Map.class);
+
+                        if (response == null) {
+                                throw new RuntimeException("Image Description Service returned null response");
+                        }
+                        return (String) response.get("description");
+                } catch (Exception e) {
+                        System.err.println("Image Description Service Error: " + e.getMessage());
+                        throw new RuntimeException("Image Description Failed");
+                }
+        }
 }

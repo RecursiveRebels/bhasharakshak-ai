@@ -26,25 +26,15 @@ export const TutorialProvider = ({ children }) => {
             nextBtnText: t('next') || "Next",
             prevBtnText: t('previous') || "Previous",
             onNextClick: (elem, step, opts) => {
-                handleNext(step);
                 drive.moveNext();
             }
         });
         setDriverObj(drive);
     }, [t]);
 
-    // Handle navigation based on steps
-    const handleNext = (step) => {
-        // Logic to navigate if the next step requires a page change
-        // This is tricky with driver.js v1+, so we might need a custom flow
-        // For simplicity in this implementation, we will use a chain of small tours
-    };
-
     const startTutorial = () => {
-        // We will run a "chain" of tours.
-        // Part 1: Home & Nav
+        // Part 1: Home & Global Features
         const homeSteps = [
-
             {
                 element: '#nav-logo',
                 popover: {
@@ -55,18 +45,26 @@ export const TutorialProvider = ({ children }) => {
             },
             {
                 element: '#nav-home',
-                popover: { title: t('home'), description: t('home_desc') || 'Go back to the main dashboard anytime.', side: "bottom" }
+                popover: { title: t('home'), description: t('home_desc') || 'Go back to the main dashboard anytime.', side: "right" }
+            },
+            {
+                element: '#nav-rank-badge',
+                popover: { title: t('your_rank') || 'Your Rank', description: t('rank_desc') || 'Track your contribution progress and badges here.', side: "left" }
+            },
+            {
+                element: '#nav-theme-toggle',
+                popover: { title: t('theme_toggle') || 'Theme', description: t('theme_desc') || 'Switch between light and dark modes.', side: "left" }
             },
             {
                 element: '#nav-lang-selector',
-                popover: { title: t('change_language'), description: t('change_lang_desc') || 'Switch the interface language here at any time.', side: "left" }
+                popover: { title: t('change_language'), description: t('change_lang_desc') || 'Switch the interface language here at any time.', side: "top" }
             },
             {
                 element: '#nav-contribute',
                 popover: {
                     title: t('contribute'),
                     description: t('contribute_nav_desc') || 'Click here to contribute your voice.',
-                    side: "bottom",
+                    side: "right",
                     onNextClick: () => {
                         navigate('/contribute');
                         setTimeout(() => startContributeTour(), 800);
@@ -78,9 +76,7 @@ export const TutorialProvider = ({ children }) => {
 
         driverObj.setConfig({
             steps: homeSteps,
-            onDestroyed: () => {
-                // Optional: save state if user closes it manually
-            }
+            onDestroyed: () => { }
         });
         driverObj.drive();
     };
@@ -92,7 +88,7 @@ export const TutorialProvider = ({ children }) => {
                 popover: {
                     title: t('how_to_record') || 'How to Record',
                     description: t('record_instruction') || 'Click the microphone icon to start recording. Read the text displayed above.',
-                    side: "top"
+                    side: "left"
                 }
             },
             {
@@ -100,7 +96,7 @@ export const TutorialProvider = ({ children }) => {
                 popover: {
                     title: t('translate'),
                     description: t('translate_nav_desc') || 'Explore our translation tools.',
-                    side: "bottom",
+                    side: "right",
                     onNextClick: () => {
                         navigate('/translate');
                         setTimeout(() => startTranslateTour(), 800);
@@ -121,11 +117,11 @@ export const TutorialProvider = ({ children }) => {
     const startTranslateTour = () => {
         const translateSteps = [
             {
-                element: '#translation-panel', // Need to add ID
+                element: '#translation-panel',
                 popover: {
                     title: t('translation_panel'),
                     description: t('translate_panel_desc') || 'Type text or use voice to translate between languages.',
-                    side: "top"
+                    side: "left"
                 }
             },
             {
@@ -133,11 +129,11 @@ export const TutorialProvider = ({ children }) => {
                 popover: {
                     title: t('learn'),
                     description: t('learn_nav_desc') || 'Learn from verified contributions.',
-                    side: "bottom",
+                    side: "right",
                     onNextClick: () => {
                         navigate('/learn');
                         setTimeout(() => startLearnTour(), 800);
-                        driverObj.destroy(); // Close current tour
+                        driverObj.destroy();
                     }
                 }
             }
@@ -154,19 +150,52 @@ export const TutorialProvider = ({ children }) => {
     const startLearnTour = () => {
         const learnSteps = [
             {
-                element: '#language-gallery', // Need to add ID
+                element: '#language-gallery',
                 popover: {
                     title: t('language_gallery'),
                     description: t('gallery_desc') || 'Browse verified content by language.',
-                    side: "top"
+                    side: "left"
                 }
             },
             {
-                element: '#nav-home',
+                element: '#nav-my-collections',
+                popover: {
+                    title: t('my_collections'),
+                    description: t('my_collections_desc') || 'Manage your private recordings here.',
+                    side: "right",
+                    onNextClick: () => {
+                        navigate('/my-collections');
+                        setTimeout(() => startCollectionsTour(), 800);
+                        driverObj.destroy();
+                    }
+                }
+            }
+        ];
+
+        const drive = driver({
+            showProgress: true,
+            animate: true,
+            steps: learnSteps
+        });
+        drive.drive();
+    }
+
+    const startCollectionsTour = () => {
+        const collectionSteps = [
+            {
+                element: '#my-collections-list',
+                popover: {
+                    title: t('your_recordings') || 'Your Recordings',
+                    description: t('recordings_desc') || 'View, listen to, and manage your private recordings. You can choose to make them public or delete them.',
+                    side: "left"
+                }
+            },
+            {
+                element: '#nav-help-btn',
                 popover: {
                     title: t('tutorial_complete'),
-                    description: t('tutorial_complete_desc') || 'You are all set! Click Done to finish.',
-                    side: "bottom",
+                    description: t('tutorial_complete_desc') || 'Click here anytime to replay this tutorial. Enjoy BhashaRakshak!',
+                    side: "top",
                     doneBtnText: t('finish') || 'Finish'
                 }
             }
@@ -175,7 +204,7 @@ export const TutorialProvider = ({ children }) => {
         const drive = driver({
             showProgress: true,
             animate: true,
-            steps: learnSteps,
+            steps: collectionSteps,
             onDestroyed: () => localStorage.setItem('hasSeenTutorial', 'true')
         });
         drive.drive();
@@ -185,11 +214,9 @@ export const TutorialProvider = ({ children }) => {
     // Auto-start check
     useEffect(() => {
         const hasSeen = localStorage.getItem('hasSeenTutorial');
-        // Check if we are done with language selection (assuming localStorage item 'hasSeenLanguageSelector')
         const languageSelected = localStorage.getItem('hasSeenLanguageSelector');
 
         if (!hasSeen && languageSelected && location.pathname === '/') {
-            // Small delay to let page render
             setTimeout(() => startTutorial(), 1000);
         }
     }, [location.pathname]);

@@ -42,11 +42,11 @@ export const Navbar = () => {
     const currentLang = LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0];
 
     const navItems = [
-        { path: '/', label: t('home'), icon: Home },
-        { path: '/contribute', label: t('contribute'), icon: Mic },
-        { path: '/translate', label: t('translate'), icon: Globe },
-        { path: '/learn', label: t('learn'), icon: BookOpen },
-        { path: '/my-collections', label: t('my_collections') || 'My Collections', icon: User },
+        { path: '/', label: t('home'), icon: Home, id: 'nav-home' },
+        { path: '/contribute', label: t('contribute'), icon: Mic, id: 'nav-contribute' },
+        { path: '/translate', label: t('translate'), icon: Globe, id: 'nav-translate' },
+        { path: '/learn', label: t('learn'), icon: BookOpen, id: 'nav-learn' },
+        { path: '/my-collections', label: t('my_collections') || 'My Collections', icon: User, id: 'nav-my-collections' },
     ];
 
     return (
@@ -56,7 +56,7 @@ export const Navbar = () => {
                 }`}>
                 {/* Rank Badge */}
                 {topBadge && (
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-800 shadow-lg">
+                    <div id="nav-rank-badge" className="flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-800 shadow-lg">
                         <span className="text-xl">{topBadge.icon}</span>
                         <span className="hidden sm:inline text-xs font-bold text-amber-900 dark:text-amber-300">
                             {topBadge.name}
@@ -66,6 +66,7 @@ export const Navbar = () => {
 
                 {/* Theme Toggle */}
                 <button
+                    id="nav-theme-toggle"
                     onClick={toggleTheme}
                     className="p-3 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all text-gray-600 dark:text-gray-400"
                 >
@@ -75,6 +76,7 @@ export const Navbar = () => {
 
             {/* Mobile Menu Button */}
             <button
+                id="nav-menu-btn"
                 onClick={() => setIsOpen(!isOpen)}
                 className="lg:hidden fixed top-6 left-6 z-50 p-3 rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700"
             >
@@ -83,6 +85,7 @@ export const Navbar = () => {
 
             {/* Desktop Collapse Button */}
             <button
+                id="nav-collapse-btn"
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 className={`hidden lg:block fixed top-6 z-50 p-3 rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300 ${isCollapsed ? 'left-6' : 'left-[264px]'
                     }`}
@@ -110,7 +113,7 @@ export const Navbar = () => {
                     }`}
             >
                 {/* Logo Section */}
-                <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+                <div className="p-6 border-b border-gray-200 dark:border-gray-800" id="nav-logo">
                     <Link to="/" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow flex-shrink-0">
                             <Shield className="w-7 h-7 text-white" strokeWidth={2.5} />
@@ -131,9 +134,10 @@ export const Navbar = () => {
                 {/* Navigation Items */}
                 <nav className="flex-1 p-4 overflow-y-auto">
                     <div className="space-y-1">
-                        {navItems.map(({ path, label, icon: Icon }) => (
+                        {navItems.map(({ path, label, icon: Icon, id }) => (
                             <Link
                                 key={path}
+                                id={id}
                                 to={path}
                                 onClick={() => setIsOpen(false)}
                                 className="relative group block"
@@ -169,6 +173,7 @@ export const Navbar = () => {
                 <div className="p-4 border-t border-gray-200 dark:border-gray-800 space-y-2">
                     {/* Help */}
                     <button
+                        id="nav-help-btn"
                         onClick={startTutorial}
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
                         title={isCollapsed ? t('start_tutorial') : ''}
@@ -179,7 +184,7 @@ export const Navbar = () => {
 
                     {/* Language Selector */}
                     {!isCollapsed && (
-                        <div className="relative">
+                        <div className="relative" id="nav-lang-selector">
                             <button
                                 onClick={() => setLangMenuOpen(!langMenuOpen)}
                                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
@@ -225,6 +230,11 @@ export const Navbar = () => {
                     {/* Collapsed Language Icon */}
                     {isCollapsed && (
                         <button
+                            id="nav-lang-selector-collapsed"
+                            onClick={() => {
+                                setIsCollapsed(false);
+                                setTimeout(() => setLangMenuOpen(true), 300); // Wait for expansion
+                            }}
                             className="w-full flex items-center justify-center px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
                             title={currentLang.native}
                         >

@@ -23,9 +23,13 @@ public class PrivateCollectionController {
 
     /**
      * Get all private collections for a specific user
+     * Optionally filter by language
      */
     @GetMapping
-    public ResponseEntity<List<LanguageAsset>> getMyCollections(@RequestParam String userId) {
+    public ResponseEntity<List<LanguageAsset>> getMyCollections(
+            @RequestParam String userId,
+            @RequestParam(required = false) String language) {
+
         if (userId == null || userId.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
@@ -33,6 +37,8 @@ public class PrivateCollectionController {
         List<LanguageAsset> privateAssets = assetRepository.findAll().stream()
                 .filter(asset -> asset.isPrivate())
                 .filter(asset -> userId.equals(asset.getUserId()))
+                .filter(asset -> language == null || language.isEmpty() ||
+                        (asset.getLanguageName() != null && asset.getLanguageName().equalsIgnoreCase(language)))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(privateAssets);

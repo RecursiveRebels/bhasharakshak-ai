@@ -249,7 +249,7 @@ export const LinguisticMap = () => {
                                                     {markers.find(m => m.name === hoveredMarker)?.name}
                                                 </h3>
                                                 <p className="text-orange-600 dark:text-orange-400 font-semibold mb-2">
-                                                    {markers.find(m => m.name === hoveredMarker)?.language}
+                                                    {t(markers.find(m => m.name === hoveredMarker)?.language)}
                                                 </p>
                                                 <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                                                     <span className={`w-2 h-2 rounded-full ${markers.find(m => m.name === hoveredMarker)?.contributions > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></span>
@@ -306,7 +306,7 @@ export const LinguisticMap = () => {
                                                     {marker.name}
                                                 </p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                                    {marker.language}
+                                                    {t(marker.language)}
                                                 </p>
                                             </div>
                                             <div className="text-xs font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">

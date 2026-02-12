@@ -71,11 +71,10 @@ public class FileUploadController {
             try {
                 transcript = aiService.transcribeAudio(file, language);
 
-                // TODO: Re-enable profanity filter after backend restart
                 // Validate transcript for profanity
                 // if (profanityFilter.containsProfanity(transcript)) {
-                // return ResponseEntity.badRequest().body("Audio transcript contains
-                // inappropriate content. Please re-record.");
+                // return ResponseEntity.badRequest()
+                // .body("Audio transcript contains inappropriate content. Please re-record.");
                 // }
             } catch (Exception ex) {
                 System.err.println("AI Service unavailable: " + ex.getMessage());

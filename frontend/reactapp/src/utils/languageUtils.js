@@ -3,6 +3,33 @@
  * This helps ensure we don't show English text in a Tamil container, etc.
  */
 
+export const LANGUAGE_MAPPING = {
+    'en': 'English',
+    'hi': 'Hindi',
+    'ta': 'Tamil',
+    'te': 'Telugu',
+    'kn': 'Kannada',
+    'ml': 'Malayalam',
+    'bn': 'Bengali',
+    'gu': 'Gujarati',
+    'mr': 'Marathi',
+    'or': 'Odia',
+    'pa': 'Punjabi',
+    'as': 'Assamese',
+    'ur': 'Urdu',
+    'sa': 'Sanskrit'
+};
+
+/**
+ * Helper to get full language name from ISO code
+ * @param {string} code - ISO language code (e.g. 'hi', 'en')
+ * @returns {string|null} - Full name (e.g. 'Hindi') or null if not found
+ */
+export const getLanguageNameFromCode = (code) => {
+    if (!code) return null;
+    return LANGUAGE_MAPPING[code.toLowerCase()] || null;
+};
+
 const SCRIPT_RANGES = {
     // Tamil: U+0B80–U+0BFF
     tamil: /[\u0B80-\u0BFF]/,

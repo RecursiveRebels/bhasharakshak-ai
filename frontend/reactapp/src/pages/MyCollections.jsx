@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { getUserId } from '../services/userService';
 import axios from 'axios';
 import { Trash2, Globe, Play, Pause, Lock, Unlock, AlertCircle } from 'lucide-react';
+import { getLanguageNameFromCode } from '../utils/languageUtils';
 
 export const MyCollections = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [collections, setCollections] = useState([]);
     const [loading, setLoading] = useState(true);
     const [playingId, setPlayingId] = useState(null);
@@ -15,13 +16,20 @@ export const MyCollections = () => {
 
     useEffect(() => {
         fetchMyCollections();
-    }, []);
+    }, [i18n.language]);
 
     const fetchMyCollections = async () => {
         setLoading(true);
         console.log('=== FETCHING MY COLLECTIONS ===');
         console.log('userId:', userId);
-        const apiUrl = `http://localhost:8080/api/v1/my-collections?userId=${userId}`;
+
+        const currentLangName = getLanguageNameFromCode(i18n.language);
+        let apiUrl = `http://localhost:8080/api/v1/my-collections?userId=${userId}`;
+
+        if (currentLangName) {
+            apiUrl += `&language=${currentLangName}`;
+        }
+
         console.log('API URL:', apiUrl);
 
         try {
@@ -144,7 +152,7 @@ export const MyCollections = () => {
                     </a>
                 </motion.div>
             ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="my-collections-list">
                     {collections.map((asset, index) => (
                         <motion.div
                             key={asset.assetId}

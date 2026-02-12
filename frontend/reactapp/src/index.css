@@ -240,8 +240,9 @@ h6 {
   animation: elementPulse 2s ease-in-out infinite;
 }
 
-.driver-overlay {
-  @apply bg-black/60 backdrop-blur-sm;
+.driver-overlay,
+#driver-page-overlay {
+  @apply bg-black/60 backdrop-blur-md;
   animation: overlayFadeIn 0.3s ease-out;
 }
 

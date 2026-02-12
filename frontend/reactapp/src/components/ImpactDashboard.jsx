@@ -48,9 +48,9 @@ export const ImpactDashboard = () => {
                 x={x}
                 y={y}
                 fill="white"
-                textAnchor={x > cx ? 'start' : 'end'}
+                textAnchor="middle"
                 dominantBaseline="central"
-                className="font-bold text-sm"
+                className="font-bold text-[10px]"
             >
                 {`${(percent * 100).toFixed(0)}%`}
             </text>
@@ -163,9 +163,9 @@ export const ImpactDashboard = () => {
                         </p>
 
                         {stats.distribution.length > 0 ? (
-                            <div className="flex flex-col items-center">
+                            <div className="flex flex-col md:flex-row items-center gap-8 justify-center">
                                 {/* Chart Container */}
-                                <div className="h-[300px] w-full max-w-[300px] mb-6">
+                                <div className="h-[280px] w-[280px] flex-shrink-0 relative">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <PieChart>
                                             <defs>
@@ -182,9 +182,8 @@ export const ImpactDashboard = () => {
                                                 cy="50%"
                                                 labelLine={false}
                                                 label={renderCustomLabel}
-                                                outerRadius={110}
-                                                innerRadius={70}
-                                                fill="#8884d8"
+                                                outerRadius={100}
+                                                innerRadius={65}
                                                 dataKey="value"
                                                 animationBegin={0}
                                                 animationDuration={800}
@@ -207,39 +206,51 @@ export const ImpactDashboard = () => {
                                                     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                                                     padding: '12px'
                                                 }}
-                                                formatter={(value, name) => [`${value} contributions`, name]}
+                                                formatter={(value, name) => [`${value} contributions`, t(name)]}
                                             />
                                         </PieChart>
                                     </ResponsiveContainer>
+
+                                    {/* Center Text */}
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                        <span className="text-3xl font-black text-gray-900 dark:text-white">{total}</span>
+                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t('total')}</span>
+                                    </div>
                                 </div>
 
-                                {/* Custom Legend Below Chart */}
-                                <div className="w-full">
-                                    <div className="grid grid-cols-2 gap-4">
+                                {/* Custom Legend */}
+                                <div className="w-full md:w-auto flex-1">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[280px] overflow-y-auto custom-scrollbar pr-2">
                                         {stats.distribution.map((entry, index) => (
                                             <motion.div
                                                 key={`legend-${index}`}
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
+                                                initial={{ opacity: 0, x: 10 }}
+                                                animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: index * 0.1 }}
-                                                className="flex items-center gap-3 group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 p-2 rounded-lg transition-colors"
+                                                className="flex items-center gap-3 group cursor-pointer hover:bg-white/50 dark:hover:bg-gray-800/50 p-2 rounded-xl transition-all border border-transparent hover:border-gray-100 dark:hover:border-gray-700"
                                             >
                                                 <div
-                                                    className="w-4 h-4 rounded-full flex-shrink-0 group-hover:scale-110 transition-transform shadow-md"
-                                                    style={{
-                                                        background: `linear-gradient(to bottom, ${COLORS[index % COLORS.length]}, ${COLORS[index % COLORS.length]}dd)`
-                                                    }}
+                                                    className="w-3 h-3 rounded-full flex-shrink-0 shadow-[0_0_10px_rgba(0,0,0,0.1)]"
+                                                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
                                                 />
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
-                                                        {entry.name}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                        {entry.value} {entry.value === 1 ? 'contribution' : 'contributions'}
-                                                    </p>
-                                                </div>
-                                                <div className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                                                    {((entry.value / total) * 100).toFixed(0)}%
+                                                    <div className="flex justify-between items-center mb-0.5">
+                                                        <p className="text-sm font-bold text-gray-900 dark:text-white truncate mr-2">
+                                                            {t(entry.name)}
+                                                        </p>
+                                                        <span className="text-xs font-bold text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">
+                                                            {((entry.value / total) * 100).toFixed(0)}%
+                                                        </span>
+                                                    </div>
+                                                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                                                        <div
+                                                            className="h-full rounded-full transition-all duration-1000 ease-out"
+                                                            style={{
+                                                                width: `${(entry.value / total) * 100}%`,
+                                                                backgroundColor: COLORS[index % COLORS.length]
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </div>
                                             </motion.div>
                                         ))}

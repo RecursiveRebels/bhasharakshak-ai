@@ -6,3 +6,6 @@ SpeechRecognition
 gTTS
 requests
 edge-tts
+transformers
+torch
+pillow

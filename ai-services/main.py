@@ -9,6 +9,7 @@ import uuid
 from speech_to_text import transcribe_audio
 from translate import translate_text
 from text_to_speech import generate_speech
+from image_captioning import generate_caption
 
 app = FastAPI(title="BhashaRakshak AI Services")
 
@@ -49,6 +50,24 @@ async def speech_to_text(file: UploadFile = File(...), language: str = Form("Eng
         os.remove(temp_filename)
         
         return {"transcript": transcript}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/describe-image")
+async def describe_image(file: UploadFile = File(...)):
+    try:
+        # Save temp file
+        temp_filename = f"temp_img_{uuid.uuid4()}.jpg"
+        with open(temp_filename, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        # Generate Caption
+        caption = generate_caption(temp_filename)
+        
+        # Cleanup
+        os.remove(temp_filename)
+        
+        return {"description": caption}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

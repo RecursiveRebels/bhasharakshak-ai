@@ -375,26 +375,20 @@ export const AudioRecorder = () => {
                         <div>
                             <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block">{t('language_spoken')}</label>
                             <div className="relative">
-                                <input
-                                    list="indian-languages"
-                                    type="text"
-                                    className={`w-full p-4 pr-12 bg-white dark:bg-gray-800 border ${listeningField === 'language' ? 'border-orange-500 ring-2 ring-orange-500/20' : 'border-gray-200 dark:border-gray-700'} text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none font-medium shadow-sm transition-colors`}
-                                    placeholder={listeningField === 'language' ? t('listening') : t('select_or_type')}
+                                <select
                                     value={language}
                                     onChange={(e) => setLanguage(e.target.value)}
-                                />
-                                <button
-                                    onClick={() => startVoiceInput(setLanguage, 'language')}
-                                    className={`absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors ${listeningField === 'language' ? 'text-white bg-orange-500 animate-pulse' : 'text-gray-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/20'}`}
+                                    className={`w-full p-4 bg-white dark:bg-gray-800 border ${listeningField === 'language' ? 'border-orange-500 ring-2 ring-orange-500/20' : 'border-gray-200 dark:border-gray-700'} text-gray-900 dark:text-white rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none font-medium shadow-sm transition-colors cursor-pointer appearance-none`}
                                 >
-                                    <Mic size={20} />
-                                </button>
+                                    <option value="">{t('select_language') || 'Select Language'}</option>
+                                    {INDIAN_LANGUAGES.map(lang => (
+                                        <option key={lang} value={lang}>{lang}</option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                </div>
                             </div>
-                            <datalist id="indian-languages">
-                                {INDIAN_LANGUAGES.map(lang => (
-                                    <option key={lang} value={lang} />
-                                ))}
-                            </datalist>
                         </div>
 
                         <div>
@@ -416,10 +410,11 @@ export const AudioRecorder = () => {
                             </div>
                         </div>
 
+
                         {/* Region Selection */}
                         <div className="p-4 bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-800 rounded-2xl">
                             <label className="text-xs font-bold text-orange-800 dark:text-orange-300 uppercase tracking-wider mb-2 block flex items-center gap-1">
-                                <MapPin size={12} /> Your Location (Optional)
+                                <MapPin size={12} /> {t('your_location_optional')}
                             </label>
                             <div className="space-y-3">
                                 <select
@@ -558,6 +553,6 @@ export const AudioRecorder = () => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
