@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Home, Mic, Globe, BookOpen, User, Shield, Sun, Moon, PanelLeft, PanelLeftClose, ChevronDown, HelpCircle, Languages, ChevronRight } from 'lucide-react';
+import { Menu, X, Home, Mic, Globe, BookOpen, User, Shield, Sun, Moon, PanelLeft, PanelLeftClose, ChevronDown, HelpCircle, Languages, ChevronRight, Image } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
 import { useTutorial } from '../context/TutorialContext';
@@ -47,6 +47,7 @@ export const Navbar = () => {
         { path: '/translate', label: t('translate'), icon: Globe, id: 'nav-translate' },
         { path: '/learn', label: t('learn'), icon: BookOpen, id: 'nav-learn' },
         { path: '/my-collections', label: t('my_collections') || 'My Collections', icon: User, id: 'nav-my-collections' },
+        { path: '/visual-heritage', label: t('visual_heritage') || 'Visual Heritage', icon: Image, id: 'nav-visual-heritage' },
     ];
 
     return (

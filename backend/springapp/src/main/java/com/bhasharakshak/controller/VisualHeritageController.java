@@ -18,7 +18,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/visual-heritage")
-@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class VisualHeritageController {
 
@@ -103,6 +102,48 @@ public class VisualHeritageController {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Upload failed: " + e.getMessage());
         }
+    }
+
+    @org.springframework.beans.factory.annotation.Value("${app.admin-pin}")
+    private String adminPin;
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteHeritage(
+            @PathVariable String id,
+            @RequestHeader(value = "X-Admin-Pin", required = false) String pin) {
+
+        if (pin == null || !java.util.Objects.equals(pin, adminPin)) {
+            return ResponseEntity.status(403).body(java.util.Map.of("error", "Invalid Admin PIN"));
+        }
+
+        if (!repository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Optionally delete file from storage service too, but for now just removing
+        // metadata record
+        // storageService.deleteFile(repository.findById(id).get().getImageUrl()...);
+
+        repository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/verify")
+    public ResponseEntity<?> verifyHeritage(
+            @PathVariable String id,
+            @RequestHeader(value = "X-Admin-Pin", required = false) String pin) {
+
+        if (pin == null || !java.util.Objects.equals(pin, adminPin)) {
+            return ResponseEntity.status(403).body(java.util.Map.of("error", "Invalid Admin PIN"));
+        }
+
+        return repository.findById(id)
+                .map(heritage -> {
+                    heritage.setStatus("verified");
+                    heritage.setUpdatedAt(LocalDateTime.now());
+                    return ResponseEntity.ok(repository.save(heritage));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping

@@ -16,19 +16,33 @@ export const TutorialProvider = ({ children }) => {
     const location = useLocation();
     const [driverObj, setDriverObj] = useState(null);
 
+    const driverConfig = {
+        showProgress: true,
+        animate: true,
+        allowClose: true,
+        doneBtnText: t('done') || "Done",
+        nextBtnText: t('next') || "Next",
+        prevBtnText: t('previous') || "Previous",
+        popoverClass: 'driver-popover', // Use our custom glassmorphism class
+        onHighlightStarted: (element) => {
+            if (element) {
+                element.classList.add('driver-active-element');
+            }
+        },
+        onDeselected: (element) => {
+            if (element) {
+                element.classList.remove('driver-active-element');
+            }
+        },
+        onDestroyed: () => {
+            // Cleanup any remaining active classes
+            document.querySelectorAll('.driver-active-element').forEach(el => el.classList.remove('driver-active-element'));
+        }
+    };
+
     // Initialize driver
     useEffect(() => {
-        const drive = driver({
-            showProgress: true,
-            animate: true,
-            allowClose: true,
-            doneBtnText: t('done') || "Done",
-            nextBtnText: t('next') || "Next",
-            prevBtnText: t('previous') || "Previous",
-            onNextClick: (elem, step, opts) => {
-                drive.moveNext();
-            }
-        });
+        const drive = driver(driverConfig);
         setDriverObj(drive);
     }, [t]);
 
@@ -38,32 +52,32 @@ export const TutorialProvider = ({ children }) => {
             {
                 element: '#nav-logo',
                 popover: {
-                    title: t('welcome_title') || 'Welcome to BhashaRakshak',
-                    description: t('welcome_desc') || 'Your gateway to preserving and learning Indian languages.',
+                    title: t('welcome_title'),
+                    description: t('welcome_desc'),
                     side: "bottom", align: 'start'
                 }
             },
             {
                 element: '#nav-home',
-                popover: { title: t('home'), description: t('home_desc') || 'Go back to the main dashboard anytime.', side: "right" }
+                popover: { title: t('home'), description: t('home_desc'), side: "right" }
             },
             {
                 element: '#nav-rank-badge',
-                popover: { title: t('your_rank') || 'Your Rank', description: t('rank_desc') || 'Track your contribution progress and badges here.', side: "left" }
+                popover: { title: t('your_rank'), description: t('rank_desc'), side: "bottom" }
             },
             {
                 element: '#nav-theme-toggle',
-                popover: { title: t('theme_toggle') || 'Theme', description: t('theme_desc') || 'Switch between light and dark modes.', side: "left" }
+                popover: { title: t('theme_toggle'), description: t('theme_desc'), side: "bottom" }
             },
             {
                 element: '#nav-lang-selector',
-                popover: { title: t('change_language'), description: t('change_lang_desc') || 'Switch the interface language here at any time.', side: "top" }
+                popover: { title: t('change_language'), description: t('change_lang_desc'), side: "bottom" }
             },
             {
                 element: '#nav-contribute',
                 popover: {
                     title: t('contribute'),
-                    description: t('contribute_nav_desc') || 'Click here to contribute your voice.',
+                    description: t('contribute_nav_desc'),
                     side: "right",
                     onNextClick: () => {
                         navigate('/contribute');
@@ -75,8 +89,9 @@ export const TutorialProvider = ({ children }) => {
         ];
 
         driverObj.setConfig({
+            ...driverConfig,
             steps: homeSteps,
-            onDestroyed: () => { }
+            onDestroyed: () => { } // Prevent generic destroy from firing prematurely
         });
         driverObj.drive();
     };
@@ -86,8 +101,8 @@ export const TutorialProvider = ({ children }) => {
             {
                 element: '#contribute-recorder',
                 popover: {
-                    title: t('how_to_record') || 'How to Record',
-                    description: t('record_instruction') || 'Click the microphone icon to start recording. Read the text displayed above.',
+                    title: t('how_to_record'),
+                    description: t('record_instruction'),
                     side: "left"
                 }
             },
@@ -95,7 +110,7 @@ export const TutorialProvider = ({ children }) => {
                 element: '#nav-translate',
                 popover: {
                     title: t('translate'),
-                    description: t('translate_nav_desc') || 'Explore our translation tools.',
+                    description: t('translate_nav_desc'),
                     side: "right",
                     onNextClick: () => {
                         navigate('/translate');
@@ -107,8 +122,7 @@ export const TutorialProvider = ({ children }) => {
         ];
 
         const drive = driver({
-            showProgress: true,
-            animate: true,
+            ...driverConfig,
             steps: contributeSteps
         });
         drive.drive();
@@ -120,7 +134,7 @@ export const TutorialProvider = ({ children }) => {
                 element: '#translation-panel',
                 popover: {
                     title: t('translation_panel'),
-                    description: t('translate_panel_desc') || 'Type text or use voice to translate between languages.',
+                    description: t('translate_panel_desc'),
                     side: "left"
                 }
             },
@@ -128,7 +142,7 @@ export const TutorialProvider = ({ children }) => {
                 element: '#nav-learn',
                 popover: {
                     title: t('learn'),
-                    description: t('learn_nav_desc') || 'Learn from verified contributions.',
+                    description: t('learn_nav_desc'),
                     side: "right",
                     onNextClick: () => {
                         navigate('/learn');
@@ -140,8 +154,7 @@ export const TutorialProvider = ({ children }) => {
         ];
 
         const drive = driver({
-            showProgress: true,
-            animate: true,
+            ...driverConfig,
             steps: translateSteps
         });
         drive.drive();
@@ -153,7 +166,7 @@ export const TutorialProvider = ({ children }) => {
                 element: '#language-gallery',
                 popover: {
                     title: t('language_gallery'),
-                    description: t('gallery_desc') || 'Browse verified content by language.',
+                    description: t('gallery_desc'),
                     side: "left"
                 }
             },
@@ -161,7 +174,7 @@ export const TutorialProvider = ({ children }) => {
                 element: '#nav-my-collections',
                 popover: {
                     title: t('my_collections'),
-                    description: t('my_collections_desc') || 'Manage your private recordings here.',
+                    description: t('my_collections_desc'),
                     side: "right",
                     onNextClick: () => {
                         navigate('/my-collections');
@@ -173,8 +186,7 @@ export const TutorialProvider = ({ children }) => {
         ];
 
         const drive = driver({
-            showProgress: true,
-            animate: true,
+            ...driverConfig,
             steps: learnSteps
         });
         drive.drive();
@@ -185,8 +197,8 @@ export const TutorialProvider = ({ children }) => {
             {
                 element: '#my-collections-list',
                 popover: {
-                    title: t('your_recordings') || 'Your Recordings',
-                    description: t('recordings_desc') || 'View, listen to, and manage your private recordings. You can choose to make them public or delete them.',
+                    title: t('your_recordings'),
+                    description: t('recordings_desc'),
                     side: "left"
                 }
             },
@@ -194,7 +206,7 @@ export const TutorialProvider = ({ children }) => {
                 element: '#nav-help-btn',
                 popover: {
                     title: t('tutorial_complete'),
-                    description: t('tutorial_complete_desc') || 'Click here anytime to replay this tutorial. Enjoy BhashaRakshak!',
+                    description: t('tutorial_complete_desc'),
                     side: "top",
                     doneBtnText: t('finish') || 'Finish'
                 }
@@ -202,10 +214,13 @@ export const TutorialProvider = ({ children }) => {
         ];
 
         const drive = driver({
-            showProgress: true,
-            animate: true,
+            ...driverConfig,
             steps: collectionSteps,
-            onDestroyed: () => localStorage.setItem('hasSeenTutorial', 'true')
+            onDestroyed: () => {
+                localStorage.setItem('hasSeenTutorial', 'true');
+                // Cleanup active classes
+                document.querySelectorAll('.driver-active-element').forEach(el => el.classList.remove('driver-active-element'));
+            }
         });
         drive.drive();
     }

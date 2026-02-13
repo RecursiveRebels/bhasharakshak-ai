@@ -11,8 +11,11 @@ import { SidebarProvider } from './context/SidebarContext';
 
 
 import { LanguageSelector } from './pages/LanguageSelector';
-import { LanguageAssets } from './pages/LanguageAssets';
+import { VisualHeritage } from './pages/VisualHeritage';
 import { TutorialProvider } from './context/TutorialContext';
+import { LanguageAssets } from './pages/LanguageAssets';
+
+// ...
 
 function App() {
   const [isLanguageSelected, setIsLanguageSelected] = React.useState(!!localStorage.getItem('hasSeenLanguageSelector'));
@@ -34,6 +37,7 @@ function App() {
                 <Route path="/learn" element={<Learn />} />
                 <Route path="/learn/:language" element={<LanguageAssets />} />
                 <Route path="/my-collections" element={<MyCollections />} />
+                <Route path="/visual-heritage" element={<VisualHeritage />} />
               </Routes>
             </Layout>
           </TutorialProvider>
