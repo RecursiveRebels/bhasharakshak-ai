@@ -3,6 +3,8 @@ package com.bhasharakshak.model;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 
@@ -35,7 +37,11 @@ public class LanguageAsset {
     private String status; // "pending", "verified"
 
     // Private collections support
+    @Field("isPrivate")
+    @JsonProperty("isPrivate")
     private boolean isPrivate; // true = private collection, false = public/consented
+
+    @Field("userId")
     private String userId; // Browser-generated unique user ID for private collections
 
     private LocalDateTime createdAt;

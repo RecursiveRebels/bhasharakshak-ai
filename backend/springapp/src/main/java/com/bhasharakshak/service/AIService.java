@@ -56,10 +56,11 @@ public class AIService {
                 }
         }
 
-        public String translateText(String text, String targetLang) {
+        public String translateText(String text, String targetLang, String sourceLang) {
                 Map<String, String> request = Map.of(
                                 "text", text,
-                                "target_lang", targetLang);
+                                "target_lang", targetLang,
+                                "source_lang", sourceLang != null ? sourceLang : "");
 
                 @SuppressWarnings("unchecked")
                 Map<String, Object> response = restClient.post()

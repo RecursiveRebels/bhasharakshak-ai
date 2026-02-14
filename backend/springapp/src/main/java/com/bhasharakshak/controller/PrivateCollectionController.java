@@ -34,12 +34,15 @@ public class PrivateCollectionController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<LanguageAsset> privateAssets = assetRepository.findAll().stream()
-                .filter(asset -> asset.isPrivate())
-                .filter(asset -> userId.equals(asset.getUserId()))
-                .filter(asset -> language == null || language.isEmpty() ||
-                        (asset.getLanguageName() != null && asset.getLanguageName().equalsIgnoreCase(language)))
-                .collect(Collectors.toList());
+        System.out.println("Fetching private collections for user: " + userId);
+        List<LanguageAsset> privateAssets = assetRepository.findByUserIdAndIsPrivate(userId, true);
+
+        if (language != null && !language.isEmpty()) {
+            privateAssets = privateAssets.stream()
+                    .filter(asset -> asset.getLanguageName() != null
+                            && asset.getLanguageName().equalsIgnoreCase(language))
+                    .collect(Collectors.toList());
+        }
 
         return ResponseEntity.ok(privateAssets);
     }

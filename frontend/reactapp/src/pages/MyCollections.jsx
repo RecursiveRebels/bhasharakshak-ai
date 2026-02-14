@@ -5,6 +5,7 @@ import { getUserId } from '../services/userService';
 import axios from 'axios';
 import { Trash2, Globe, Play, Pause, Lock, Unlock, AlertCircle } from 'lucide-react';
 import { getLanguageNameFromCode } from '../utils/languageUtils';
+import { API_BASE_URL } from '../apiConfig';
 
 export const MyCollections = () => {
     const { t, i18n } = useTranslation();
@@ -18,13 +19,15 @@ export const MyCollections = () => {
         fetchMyCollections();
     }, [i18n.language]);
 
+
+
     const fetchMyCollections = async () => {
         setLoading(true);
         console.log('=== FETCHING MY COLLECTIONS ===');
         console.log('userId:', userId);
 
         const currentLangName = getLanguageNameFromCode(i18n.language);
-        let apiUrl = `http://localhost:8080/api/v1/my-collections?userId=${userId}`;
+        let apiUrl = `${API_BASE_URL}/my-collections?userId=${userId}`;
 
         if (currentLangName) {
             apiUrl += `&language=${currentLangName}`;
@@ -51,7 +54,7 @@ export const MyCollections = () => {
         }
 
         try {
-            await axios.delete(`http://localhost:8080/api/v1/my-collections/${assetId}?userId=${userId}`);
+            await axios.delete(`${API_BASE_URL}/my-collections/${assetId}?userId=${userId}`);
             setCollections(collections.filter(c => c.assetId !== assetId));
         } catch (error) {
             console.error('Error deleting asset:', error);
@@ -65,7 +68,7 @@ export const MyCollections = () => {
         }
 
         try {
-            await axios.patch(`http://localhost:8080/api/v1/my-collections/${assetId}/make-public?userId=${userId}`);
+            await axios.patch(`${API_BASE_URL}/my-collections/${assetId}/make-public?userId=${userId}`);
             // Remove from private collections
             setCollections(collections.filter(c => c.assetId !== assetId));
             alert(t('made_public_success') || 'Recording is now public and pending verification!');

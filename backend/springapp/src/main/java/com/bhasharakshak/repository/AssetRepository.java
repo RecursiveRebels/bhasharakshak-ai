@@ -12,4 +12,6 @@ public interface AssetRepository extends MongoRepository<LanguageAsset, String> 
     List<LanguageAsset> findByStatus(String status);
 
     List<LanguageAsset> findByLanguageNameContainingIgnoreCase(String languageName);
+
+    List<LanguageAsset> findByUserIdAndIsPrivate(String userId, boolean isPrivate);
 }

@@ -38,9 +38,16 @@ public class FileUploadController {
             @RequestParam(value = "isPrivate", defaultValue = "false") boolean isPrivate,
             @RequestParam(value = "userId", required = false) String userId) {
         try {
+            System.out.println("=== UPLOAD REQUEST ===");
+            System.out.println("Language: " + language + ", IsPrivate: " + isPrivate + ", UserId: " + userId);
+
             // Validate: if private, userId is required
-            if (isPrivate && (userId == null || userId.isEmpty())) {
+            if (isPrivate && (userId == null || userId.trim().isEmpty())) {
                 return ResponseEntity.badRequest().body("User ID is required for private collections.");
+            }
+
+            if (userId != null) {
+                userId = userId.trim();
             }
 
             // Validate: if not private (public), consent is mandatory

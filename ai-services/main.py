@@ -26,6 +26,7 @@ app.add_middleware(
 class TranslationRequest(BaseModel):
     text: str
     target_lang: str
+    source_lang: str = None
 
 class TTSRequest(BaseModel):
     text: str
@@ -74,7 +75,7 @@ async def describe_image(file: UploadFile = File(...)):
 @app.post("/translate")
 def translate(request: TranslationRequest):
     try:
-        translated_text = translate_text(request.text, request.target_lang)
+        translated_text = translate_text(request.text, request.target_lang, request.source_lang)
         return {"translated_text": translated_text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

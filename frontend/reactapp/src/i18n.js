@@ -210,7 +210,20 @@ const resources = {
             "tutorial_complete_desc": "You are ready to make history. Click here anytime for guidance. The future is yours.",
             "finish": "Begin Journey",
             "done": "Done",
-            "previous": "Back"
+            "previous": "Back",
+            "visual_heritage": "Visual Heritage",
+            "start_tutorial": "Start Tutorial",
+            "visual_heritage_title": "Visual Heritage",
+            "visual_heritage_desc": "Explore India's rich cultural and historical heritage through images.",
+            "drag_drop_image": "Drag and drop image here",
+            "or_click_browse": "or click to browse",
+            "browse_files": "Browse Files",
+            "title": "Title",
+            "description": "Description",
+            "language_of_desc": "Language of Description",
+            "region": "Region",
+            "recent_contributions": "Recent Contributions",
+            "legal": "Legal"
         }
     },
     hi: {

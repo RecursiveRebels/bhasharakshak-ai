@@ -6,6 +6,7 @@ import { incrementContribution } from '../services/GamificationService';
 import { useTranslation } from 'react-i18next';
 import { INDIAN_REGIONS, getCitiesForRegion } from '../utils/regionData';
 import { getUserId } from '../services/userService';
+import { API_BASE_URL } from '../apiConfig';
 
 export const AudioRecorder = () => {
     const { t } = useTranslation();
@@ -186,8 +187,10 @@ export const AudioRecorder = () => {
             }
         }
 
+
+
         try {
-            const response = await axios.post('http://localhost:8080/api/v1/preservation/upload', formData, {
+            const response = await axios.post(`${API_BASE_URL}/preservation/upload`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 

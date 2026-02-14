@@ -1,8 +1,40 @@
-from deep_translator import GoogleTranslator
+import requests
 
-def translate_text(text: str, target_lang: str) -> str:
+def translate_gtx(text, source='auto', target='en'):
     """
-    Real Machine Translation using deep-translator (Google Translate).
+    Direct Google Translate (GTX) for better reliability than deep-translator scraping.
+    """
+    try:
+        url = "https://translate.googleapis.com/translate_a/single"
+        params = {
+            "client": "gtx",
+            "sl": source,
+            "tl": target,
+            "dt": "t",
+            "q": text
+        }
+        headers = {
+            "User-Agent": "Mozilla/5.0"
+        }
+        
+        response = requests.get(url, params=params, headers=headers, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        
+        translated_text = ""
+        if data and isinstance(data, list) and len(data) > 0:
+            for item in data[0]:
+                if item and isinstance(item, list) and len(item) > 0:
+                    translated_text += item[0]
+        
+        return translated_text
+    except Exception as e:
+        print(f"GTX Error: {e}")
+        return None
+
+def translate_text(text: str, target_lang: str, source_lang: str = None) -> str:
+    """
+    Real Machine Translation using deep-translator (Google Translate) with GTX fallback.
     """
     try:
         # Map frontend language names to codes for better compatibility
@@ -20,40 +52,33 @@ def translate_text(text: str, target_lang: str) -> str:
             "Dogri": "doi",
 
             # === Smart Fallbacks (Approximations) ===
-            # For languages without direct API support, we map to the closest linguistically 
-            # or script-related major language to provide at least some intelligibility 
-            # or script familiarity, rather than just returning English.
-            
-            # Devanagari Script Group
             "Bodo": "hi",     
-            "Sanskrit": "hi", # If 'sa' fails, fallback to Hindi (though 'sa' is supported)
+            "Sanskrit": "hi", 
             
             # Bengali Script Group
-            "Manipuri": "bn", # Meiteilon (Fallback to Bengali script if native not supported)
-            "Meitei": "bn",   # Alias
-            "Santali": "bn",  # Fallback to Bengali script (Ol Chiki native support often flaky)
-            "Kokborok": "bn", # Often uses Bengali script
-            "Chakma": "bn",   # Linguistically close to Bengali
+            "Manipuri": "bn",
+            "Meitei": "bn",
+            "Santali": "bn",
+            "Kokborok": "bn",
+            "Chakma": "bn",
             "Bishnupriya Manipuri": "bn",
             "Hajong": "bn",
             "Koch": "bn",
-            "Rabha": "bn", # Often uses Bengali or Assamese
+            "Rabha": "bn",
             
             # Assamese Script / Related
             "Mishing": "as", 
             "Tiwa": "as",
             "Deori": "as",
-            "Dimasa": "as", # or Bengali
+            "Dimasa": "as",
             
             # Urdu / Perso-Arabic Script
             "Kashmiri": "ur", 
             
             # Roman Script / English fallback
-            # (Many NE tribal languages use Roman script, so English is the safest fallback 
-            # if translation is impossible, to avoid script confusion)
             "Khasi": "en",
             "Garo": "en",
-            "Naga": "en", # General placeholder
+            "Naga": "en",
             "Angami": "en",
             "Ao": "en",
             "Lotha": "en",
@@ -64,11 +89,20 @@ def translate_text(text: str, target_lang: str) -> str:
         target_code = lang_map.get(target_lang)
         
         if not target_code:
-            # If not in map, try to see if the raw input is a valid code or just fallback to English to be safe
-            # The list provided by user shows standard codes. 
             target_code = "en"
+
+        # Determine source code
+        source_code = 'auto'
+        if source_lang:
+            source_code = lang_map.get(source_lang, 'auto')
         
-        translator = GoogleTranslator(source='auto', target=target_code)
+        # 1. Try Direct GTX first (More reliable for Indian languages)
+        gtx_result = translate_gtx(text, source=source_code, target=target_code)
+        if gtx_result:
+            return gtx_result
+
+        # 2. Fallback to deep-translator
+        translator = GoogleTranslator(source=source_code, target=target_code)
         translated = translator.translate(text)
         return translated
     except Exception as e:

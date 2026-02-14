@@ -100,9 +100,15 @@ export const TranslationPanel = () => {
 
     const handleSubmit = async () => {
         if (!selectedAsset) return;
+
+        const pin = prompt("Enter Admin PIN to verify and save:");
+        if (!pin) return;
+
         try {
             await axios.patch(`http://localhost:8080/api/v1/translate/${selectedAsset.assetId}`, {
                 englishTranslation: translation
+            }, {
+                headers: { 'X-Admin-Pin': pin }
             });
             fetchPendingAssets();
             setSelectedAsset(null);
@@ -110,6 +116,11 @@ export const TranslationPanel = () => {
             alert("Translation verified!");
         } catch (err) {
             console.error(err);
+            if (err.response && err.response.status === 403) {
+                alert("Access Denied: Invalid Admin PIN");
+            } else {
+                alert("Failed to verify translation.");
+            }
         }
     };
 
@@ -236,7 +247,7 @@ export const TranslationPanel = () => {
                                 <div className="flex justify-between items-center mb-4">
                                     <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 p-1 rounded-xl">
                                         <div className="px-3 py-1.5 rounded-lg bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 text-xs font-bold uppercase flex items-center gap-2">
-                                            {t('auto_detect')} <ArrowRightLeft size={12} />
+                                            {t('translate_to') || 'Translate to'} <ArrowRightLeft size={12} />
                                         </div>
                                         <select
                                             value={targetLang}

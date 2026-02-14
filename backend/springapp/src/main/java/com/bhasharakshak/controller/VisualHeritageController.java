@@ -73,7 +73,7 @@ public class VisualHeritageController {
             for (String targetLang : SUPPORTED_LANGUAGES) {
                 if (!targetLang.equalsIgnoreCase(language)) {
                     try {
-                        String translatedText = aiService.translateText(description, targetLang);
+                        String translatedText = aiService.translateText(description, targetLang, language);
                         translations.put(targetLang, translatedText);
                     } catch (Exception e) {
                         System.err.println("Failed to translate to " + targetLang + ": " + e.getMessage());

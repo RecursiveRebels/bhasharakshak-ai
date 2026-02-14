@@ -22,7 +22,12 @@ public class TranslationController {
 
     @GetMapping("/pending")
     public ResponseEntity<List<LanguageAsset>> getPendingAssets() {
-        return ResponseEntity.ok(assetRepository.findByStatus("pending"));
+        List<LanguageAsset> pending = assetRepository.findByStatus("pending");
+        // Ensure private assets are strictly filtered out from public review
+        List<LanguageAsset> publicPending = pending.stream()
+                .filter(asset -> !asset.isPrivate())
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(publicPending);
     }
 
     @Value("${app.admin-pin}")
@@ -74,7 +79,7 @@ public class TranslationController {
         }
 
         try {
-            String translated = aiService.translateText(asset.getTranscript(), targetLang);
+            String translated = aiService.translateText(asset.getTranscript(), targetLang, asset.getLanguageName());
             return ResponseEntity.ok(Map.of("translatedText", translated));
         } catch (Exception e) {
             e.printStackTrace();
